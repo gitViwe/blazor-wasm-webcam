@@ -32,7 +32,5 @@ window.GetFrame = function GetFrame(videoElementId, canvasElementId) {
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
-    let output= canvas.toDataURL("image/jpeg");
-    
-    return output;
+    return canvas.toDataURL("image/jpeg");
 }
