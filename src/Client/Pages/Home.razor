@@ -1,0 +1,15 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<MudContainer Class="mt-16" MaxWidth="MaxWidth.False">
+    <MudGrid>
+        <MudItem xs="12">
+            <video id="videoElement" width="250"></video>
+        </MudItem>
+        <MudItem xs="12">
+            <MudImage Src="@Base64"></MudImage>
+            <canvas id="canvasElement" width="250"></canvas>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
