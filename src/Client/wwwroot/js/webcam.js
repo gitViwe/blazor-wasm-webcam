@@ -16,7 +16,7 @@ window.StartVideo = async function StartVideo(elementId) {
         if ("srcObject" in video) { video.srcObject = stream; }
         else { video.src = window.URL.createObjectURL(stream); }
         
-        video.onloadedmetadata = function (e) {
+        video.onloadedmetadata = function () {
             video.play();
         };
     }
