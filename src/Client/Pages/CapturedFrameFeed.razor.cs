@@ -12,7 +12,8 @@ public partial class CapturedFrameFeed : IDisposable
 
     private Task RealtimeClientOnOnVideoFrameCapturedAsync(object sender, VideoFrameCaptured args)
     {
-        _imageSrc = $"data:{args.ContentType};base64," + Convert.ToBase64String(args.ImageData);
+        _imageSrc = args.Base64String;
+        StateHasChanged();
         return Task.CompletedTask;
     }
 

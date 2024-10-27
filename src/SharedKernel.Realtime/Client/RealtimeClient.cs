@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
+using SharedKernel.Realtime.Constant;
 using SharedKernel.Realtime.Model;
-using SharedKernel.Realtime.Server;
 
 namespace SharedKernel.Realtime.Client;
 
@@ -14,8 +14,7 @@ public class RealtimeClient(IConfiguration configuration) : IRealtimeClient
     
     public Task ConnectAsync()
     {
-        if (_hubConnection is not null
-            && _hubConnection.State != HubConnectionState.Disconnected)
+        if (_hubConnection?.State != HubConnectionState.Disconnected)
         {
             return Task.CompletedTask;
         }
@@ -33,7 +32,7 @@ public class RealtimeClient(IConfiguration configuration) : IRealtimeClient
         };
 
         // subscribe to messages
-        _ = _hubConnection.On<VideoFrameCaptured>(nameof(VideoFrameCaptured), notification => InvokeAsync(OnVideoFrameCapturedAsync, notification));
+        _ = _hubConnection.On<VideoFrameCaptured>(MethodName.VideoFrameCaptured, InvokeAsync);
 
         // launch the signalR connection in the background.
         _ = ConnectWithRetryAsync(_cts.Token);
@@ -57,21 +56,11 @@ public class RealtimeClient(IConfiguration configuration) : IRealtimeClient
         GC.SuppressFinalize(this);
     }
     
-    public Task BroadcastVideoFrameCapturedAsync(VideoFrameCaptured notification, CancellationToken cancellationToken)
+    private async Task InvokeAsync(VideoFrameCaptured args)
     {
-        if (_hubConnection is not null && _hubConnection?.State == HubConnectionState.Connected)
+        if (OnVideoFrameCapturedAsync is not null)
         {
-            return _hubConnection.InvokeAsync(nameof(IRealtimeServer.BroadcastVideoFrameCapturedAsync), notification, cancellationToken);
-        }
-        
-        return Task.CompletedTask;
-    }
-    
-    private async Task InvokeAsync(VideoFrameCapturedEventHandler? asyncHandler, VideoFrameCaptured args)
-    {
-        if (asyncHandler is not null)
-        {
-            var asyncHandlers = asyncHandler
+            var asyncHandlers = OnVideoFrameCapturedAsync
                 .GetInvocationList()
                 .Cast<VideoFrameCapturedEventHandler>()
                 .Select(h => h.Invoke(this, args))

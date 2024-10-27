@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.SignalR;
+using SharedKernel.Realtime.Constant;
 using SharedKernel.Realtime.Model;
-using SharedKernel.Realtime.Server;
 
 namespace Gateway.SignalRHub;
 
-internal class RealtimeServerHub : Hub, IRealtimeServer
+internal class RealtimeServerHub : Hub;
+
+internal class RealtimeServerHubContext(IHubContext<RealtimeServerHub> hub)
 {
     public Task BroadcastVideoFrameCapturedAsync(VideoFrameCaptured notification, CancellationToken cancellationToken)
-    {
-        return Clients.All.SendAsync(nameof(VideoFrameCaptured), notification, cancellationToken);
-    }
+        => hub.Clients.All.SendAsync(MethodName.VideoFrameCaptured, notification, cancellationToken);
 }
