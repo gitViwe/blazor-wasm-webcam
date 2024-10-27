@@ -4,7 +4,7 @@ using SharedKernel.Realtime.Server;
 
 namespace Gateway.SignalRHub;
 
-public class RealtimeServerHub : Hub, IRealtimeServer
+internal class RealtimeServerHub : Hub, IRealtimeServer
 {
     public Task BroadcastVideoFrameCapturedAsync(VideoFrameCaptured notification, CancellationToken cancellationToken)
     {

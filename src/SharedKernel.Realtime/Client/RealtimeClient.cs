@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using SharedKernel.Realtime.Model;
+using SharedKernel.Realtime.Server;
 
 namespace SharedKernel.Realtime.Client;
 
@@ -40,6 +41,32 @@ public class RealtimeClient(IConfiguration configuration) : IRealtimeClient
         return Task.CompletedTask;
     }
     
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.DisposeAsync();
+        }
+        GC.SuppressFinalize(this);
+    }
+    
+    public Task BroadcastVideoFrameCapturedAsync(VideoFrameCaptured notification, CancellationToken cancellationToken)
+    {
+        if (_hubConnection is not null && _hubConnection?.State == HubConnectionState.Connected)
+        {
+            return _hubConnection.InvokeAsync(nameof(IRealtimeServer.BroadcastVideoFrameCapturedAsync), notification, cancellationToken);
+        }
+        
+        return Task.CompletedTask;
+    }
+    
     private async Task InvokeAsync(VideoFrameCapturedEventHandler? asyncHandler, VideoFrameCaptured args)
     {
         if (asyncHandler is not null)
@@ -74,22 +101,6 @@ public class RealtimeClient(IConfiguration configuration) : IRealtimeClient
                 await Task.Delay(5000, cancellationToken);
             }
         }
-    }
-    
-    public void Dispose()
-    {
-        _cts.Cancel();
-        _cts.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_hubConnection is not null)
-        {
-            await _hubConnection.DisposeAsync();
-        }
-        GC.SuppressFinalize(this);
     }
 }
 

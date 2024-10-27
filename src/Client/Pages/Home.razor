@@ -1,14 +1,16 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Camera Feed</PageTitle>
 
 <MudContainer Class="mt-16" MaxWidth="MaxWidth.False">
     <MudGrid>
         <MudItem xs="12">
+            <MudText>Camera feed</MudText>
+        </MudItem>
+        <MudItem xs="12">
             <video id="videoElement" width="250"></video>
         </MudItem>
         <MudItem xs="12">
-            <MudImage Src="@_imageSrc"></MudImage>
             <canvas id="canvasElement" width="250"></canvas>
         </MudItem>
     </MudGrid>
