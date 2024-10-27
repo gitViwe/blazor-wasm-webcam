@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using SharedKernel.Realtime.Client;
 
 namespace Client.Pages;
 
@@ -7,6 +8,7 @@ public partial class Home
 {
     private string _imageSrc = string.Empty;
     [Inject] public required IJSRuntime JsRuntime { get; set; }
+    [Inject] public required IRealtimeClient RealtimeClient { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
