@@ -23,11 +23,10 @@ public partial class CapturedFrameFeed : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            await RealtimeClient.ConnectAsync();
             RealtimeClient.OnVideoFrameCapturedAsync += RealtimeClientOnOnVideoFrameCapturedAsync;
         }
     }

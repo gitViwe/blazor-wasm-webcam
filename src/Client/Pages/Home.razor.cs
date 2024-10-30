@@ -1,8 +1,7 @@
-using System.Net.Http.Json;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using SharedKernel.Realtime.Client;
-using SharedKernel.Realtime.Constant;
 using SharedKernel.Realtime.Model;
 
 namespace Client.Pages;
@@ -10,27 +9,32 @@ namespace Client.Pages;
 public partial class Home
 {
     [Inject] public required IJSRuntime JsRuntime { get; set; }
-    [Inject] public required HttpClient HttpClient { get; set; }
     [Inject] public required IRealtimeClient RealtimeClient { get; set; }
+
+    private string? _connectionId;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await RealtimeClient.ConnectAsync();
+            RealtimeClient.OnConnectionChanged += (_, id) =>
+            {
+                _connectionId = id;
+                StateHasChanged();
+            };
+            await RealtimeClient.ConnectAsync(InvokableCaptureFrame);
             await JsRuntime.InvokeVoidAsync("StartVideo", "videoElement");
-            _ = CaptureFrameIndefinitelyAsync();
         }
     }
 
-    private async Task CaptureFrameIndefinitelyAsync()
+    private async Task<VideoFrameCaptured> InvokableCaptureFrame(RealtimeMetaData metaData)
     {
-        while (true)
-        {
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            var imageBase64 = await JsRuntime.InvokeAsync<string>("GetFrame", "videoElement", "canvasElement");
+        var imageBase64 = await JsRuntime.InvokeAsync<string>("GetFrame", "videoElement", "canvasElement");
 
-            _ = HttpClient.PostAsJsonAsync(Route.Gateway.BroadcastVideoFrameCaptured, new VideoFrameCaptured(imageBase64));
-        }
+        return new VideoFrameCaptured(imageBase64)
+        {
+            Id = metaData.Id,
+            DisplayName = metaData.DisplayName,
+        };
     }
 }

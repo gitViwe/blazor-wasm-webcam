@@ -4,6 +4,8 @@ namespace SharedKernel.Realtime.Client;
 
 public interface IRealtimeClient : IDisposable, IAsyncDisposable
 {
-    Task ConnectAsync();
+    string? ConnectionId { get; }
+    public event EventHandler<string?>? OnConnectionChanged;
     event VideoFrameCapturedEventHandler? OnVideoFrameCapturedAsync;
+    Task ConnectAsync(Func<RealtimeMetaData, Task<VideoFrameCaptured>> invokeVideoFrameCapturedAsync);
 }

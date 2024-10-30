@@ -18,7 +18,10 @@ builder.Services
                     .AllowAnyOrigin();
             });
     })
-    .AddSignalR();
+    .AddSignalR(options =>
+    {
+        options.MaximumParallelInvocationsPerClient = 3;
+    });
 
 var app = builder.Build();
 
